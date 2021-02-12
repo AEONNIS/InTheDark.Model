@@ -9,4 +9,9 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Leopotam.Ecs.Types\Leopotam.Ecs.Types.csproj" />
+    <ProjectReference Include="..\Leopotam.Ecs\Leopotam.Ecs.csproj" />
+  </ItemGroup>
+
 </Project>
