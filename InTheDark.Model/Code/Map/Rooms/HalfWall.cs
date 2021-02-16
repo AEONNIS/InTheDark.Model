@@ -38,8 +38,8 @@ namespace InTheDark.Model.Map
         }
 
         internal Int2 GetPointIn(float position) => IsHorizontal
-            ? new Int2(new RangeInt(Start.X, End.X).Split(position), Start.Y)
-            : new Int2(Start.X, new RangeInt(Start.Y, End.Y).Split(position));
+            ? new Int2(new RangeInt(Start.X, End.X).GetValueIn(position), Start.Y)
+            : new Int2(Start.X, new RangeInt(Start.Y, End.Y).GetValueIn(position));
 
         internal List<ForegroundTileComponent> GetTiles()
         {

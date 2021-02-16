@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace InTheDark.Model.Map
 {
-    internal class Room
+    public class Room
     {
         internal Room(in Int2 southWest, in Int2 northEast)
         {

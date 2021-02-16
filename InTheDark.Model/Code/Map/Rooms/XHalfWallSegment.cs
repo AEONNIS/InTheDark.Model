@@ -5,18 +5,19 @@ namespace InTheDark.Model.Map
 {
     public class XHalfWallSegment : IHalfWallSegment
     {
-        public XHalfWallSegment(in Int2 start, int length, DirectionSign direction, XHalfWall parent)
+        public XHalfWallSegment(in Int2 start, int count, DirectionSign direction, XHalfWall parent)
         {
             Start = start;
-            End = direction == DirectionSign.Positive ? new Int2(start.X + (length - 1), start.Y) : new Int2(start.X - (length - 1), start.Y);
-            Length = length;
+            var endX = direction == DirectionSign.Positive ? start.X + (count - 1) : start.X - (count - 1);
+            End = new Int2(endX, start.Y);
+            Count = count;
             Direction = direction;
             Parent = parent;
         }
 
         public Int2 Start { get; }
         public Int2 End { get; }
-        public int Length { get; }
+        public int Count { get; }
         public DirectionSign Direction { get; }
         public IHalfWall Parent { get; }
         public IHalfWallSegment Twin { get; private set; }
@@ -27,11 +28,18 @@ namespace InTheDark.Model.Map
             xHalfWallSegment.Twin = this;
         }
 
-        public bool Contains(int position) => Start.X <= position && position <= End.X;
+        public bool Contains(int point) => Start.X <= point && point <= End.X;
 
-        public (IHalfWallSegment FirstSegment, IHalfWallSegment SecondSegment) SplitAt(int position)
+        public (IHalfWallSegment FirstSegment, IHalfWallSegment SecondSegment) SplitAt(int point)
         {
-            var firstLength = 
+            var (firstCount, secondCount) = GetCountsWhenSplitAt(point);
+            var firstSegment = new XHalfWallSegment(Start, firstCount, Direction, Parent as XHalfWall);
+            var secondSegment = new XHalfWallSegment(new Int2(point, Start.Y), secondCount, Direction, Parent as XHalfWall);
+
+            return (firstSegment, secondSegment);
         }
+
+        private (int FirstCount, int SecondCount) GetCountsWhenSplitAt(int point) =>
+            (MathFast.Abs(point - Start.X + 1), MathFast.Abs(End.X - point + 1));
     }
 }

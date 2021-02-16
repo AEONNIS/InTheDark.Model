@@ -1,16 +1,7 @@
 ﻿namespace InTheDark.Model.Map
 {
+    // Is an interface required?
     public interface IHalfWall
-    {
-
-    }
-
-    public class XHalfWall : IHalfWall
-    {
-
-    }
-
-    public class YHalfWall : IHalfWall
     {
 
     }
