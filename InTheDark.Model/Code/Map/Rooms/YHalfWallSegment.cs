@@ -1,45 +1,41 @@
-﻿using InTheDark.Model.Maths;
-using Leopotam.Ecs.Types;
+﻿using Leopotam.Ecs.Types;
 
 namespace InTheDark.Model.Map
 {
-    public class YHalfWallSegment : IHalfWallSegment
+    public class YHalfWallSegment
     {
-        public YHalfWallSegment(in Int2 start, int count, DirectionSign direction, YHalfWall parent)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="length">May be negative.</param>
+        /// <param name="parent"></param>
+        public YHalfWallSegment(in Int2 start, int length, YHalfWall parent)
         {
             Start = start;
-            var endY = direction == DirectionSign.Positive ? start.Y + (count - 1) : start.Y - (count - 1);
-            End = new Int2(start.X, endY);
-            Count = count;
-            Direction = direction;
+            End = new Int2(start.X, start.Y + length);
             Parent = parent;
         }
 
         public Int2 Start { get; }
         public Int2 End { get; }
-        public IHalfWall Parent { get; }
-        public int Count { get; }
-        public DirectionSign Direction { get; }
-        public IHalfWallSegment Twin { get; private set; }
+        /// <summary>
+        /// May be negative.
+        /// </summary>
+        public int Length => End.Y - Start.Y;
+        public YHalfWall Parent { get; }
+        public YHalfWallSegment Twin { get; private set; }
 
-        public void SetTwin(YHalfWallSegment yHalfWallSegment)
+        public static void SetTwin(YHalfWallSegment aSegment, YHalfWallSegment bSegment)
         {
-            Twin = yHalfWallSegment;
-            yHalfWallSegment.Twin = this;
+            aSegment.Twin = bSegment;
+            bSegment.Twin = aSegment;
         }
 
-        public bool Contains(int point) => Start.Y <= point && point <= End.Y;
+        public bool Contains(int y) => Start.Y <= y && y <= End.Y;
 
-        public (IHalfWallSegment FirstSegment, IHalfWallSegment SecondSegment) SplitAt(int point)
-        {
-            var (firstCount, secondCount) = GetCountsWhenSplitAt(point);
-            var firstSegment = new YHalfWallSegment(Start, firstCount, Direction, Parent as YHalfWall);
-            var secondSegment = new YHalfWallSegment(new Int2(Start.X, point), secondCount, Direction, Parent as YHalfWall);
-
-            return (firstSegment, secondSegment);
-        }
-
-        private (int FirstCount, int SecondCount) GetCountsWhenSplitAt(int point) =>
-            (MathFast.Abs(point - Start.Y + 1), MathFast.Abs(End.Y - point + 1));
+        public (YHalfWallSegment FirstSegment, YHalfWallSegment SecondSegment) SplitAt(int y) =>
+            (new YHalfWallSegment(Start, y - Start.Y, Parent),
+             new YHalfWallSegment(new Int2(Start.X, y), End.Y - y, Parent));
     }
 }

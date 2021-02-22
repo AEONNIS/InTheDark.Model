@@ -6,34 +6,40 @@ using System.Linq;
 
 namespace InTheDark.Model.Map
 {
-    public class YHalfWall : IHalfWall
+    public class YHalfWall
     {
         private readonly List<YHalfWallSegment> _segments = new List<YHalfWallSegment>();
 
-        public YHalfWall(in Int2 start, int count, DirectionSign direction, Room room)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="length">May be negative.</param>
+        /// <param name="room"></param>
+        public YHalfWall(in Int2 start, int length, Room room)
         {
-            _segments.Add(new YHalfWallSegment(start, count, direction, this));
-            Direction = direction;
+            _segments.Add(new YHalfWallSegment(start, length, this));
             Room = room;
         }
 
         public Int2 Start => _segments[0].Start;
         public Int2 End => _segments[^1].End;
-        public int Count => _segments.Select(segment => segment.Count).Sum() - _segments.Count + 1;
-        public DirectionSign Direction { get; }
+        /// <summary>
+        /// May be negative.
+        /// </summary>
+        public int Length => _segments.Select(segment => segment.Length).Sum();
         public Room Room { get; }
-        public ReadOnlyCollection<IHalfWallSegment> Segments => _segments.Select(segment => segment as IHalfWallSegment).ToList().AsReadOnly();
+        public ReadOnlyCollection<YHalfWallSegment> Segments => _segments.AsReadOnly();
 
-        // You need to use when splitting
-        public void SplitIntoSegmentsAtRandom(float relativeShiftLimits)
+        public void RandomlySplitIntoSegments(float relativeShiftLimits)
         {
-            var point = new RangeInt(Start.Y, End.Y).GetRandomValueByCount(relativeShiftLimits);
-            var i = GetSegmentIndexIn(point);
-            var (FirstSegment, SecondSegment) = _segments[i].SplitAt(point);
-            _segments[i] = FirstSegment as XHalfWallSegment;
-            _segments.Insert(i + 1, SecondSegment as XHalfWallSegment);
+            int y = new RangeInt(Start.Y, End.Y).GetLimitedRandomValue(relativeShiftLimits);
+            int i = GetSegmentIndexIn(y);
+            var (FirstSegment, SecondSegment) = _segments[i].SplitAt(y);
+            _segments[i] = FirstSegment;
+            _segments.Insert(i + 1, SecondSegment);
         }
 
-        private int GetSegmentIndexIn(int point) => _segments.FindIndex(segment => segment.Contains(point));
+        private int GetSegmentIndexIn(int y) => _segments.FindIndex(segment => segment.Contains(y));
     }
 }
